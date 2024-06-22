@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //实现单例模版类
-public class BasetMgr <T> where T : class,new()
+public class BaseMgr <T> where T : class,new()
 {
     private static T mInstance = null;
 
