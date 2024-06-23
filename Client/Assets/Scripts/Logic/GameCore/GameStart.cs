@@ -5,31 +5,34 @@ using UnityEngine;
 
 public class GameStart : MonoBehaviour
 {
-    //ÓÎÏ·ÔËĞĞÆÚ¼äÊ¼ÖÕ±£ÁôµÄGameObject
+    // æ¸¸æˆè¿è¡ŒæœŸé—´ä½¿ç”¨ä¿ç•™çš„GameObject
     private GameObject mGo;
 
-    //ÓÎÏ·Æô¶¯ÔËĞĞ¿ªÊ¼µÄµØ·½
+
+    // æ¸¸æˆå¯åŠ¨è¿è¡Œå¼€å§‹çš„åœ°æ–¹
     void Start()
     {
         Debug.Log("Game Start");
         mGo = gameObject;
 
-        //ÇĞ»»³¡¾°¼ÓÔØÊ±²»Ïú»Ù
+        // åˆ‡æ¢åœºæ™¯åŠ è½½æ—¶ä¸é”€æ¯
         DontDestroyOnLoad(mGo);
 
         try
         {
+            // åœºæ™¯ä¸–ç•Œåˆå§‹åŒ–
             WorldManager.Instance.Init();
+
+            EntityManager.Instance.Init();
         }
         catch(Exception e)
         {
             Debug.LogException(e);
         }
-
-        WorldManager.Instance.LoadScene("rpgpp_lt_scene_1.0");
     }
 
-    //ÓÎÏ·Ñ­»·
+
+    // æ¸¸æˆå¾ªç¯
     void Update()
     {
         try
@@ -37,52 +40,56 @@ public class GameStart : MonoBehaviour
             ResManager.Instance.Update();
 
             WorldManager.Instance.Update();
+
+            EntityManager.Instance.Update();
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             Debug.LogException(e);
         }
     }
 
-    //ÔÚupdateºó¸üĞÂ
+    // åœ¨update åæ›´æ–°
     private void LateUpdate()
     {
         try
         {
-
+            EntityManager.Instance.LateUpdate();
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             Debug.LogException(e);
         }
     }
 
-    //ÒÔ¹Ì¶¨ÆµÂÊ¸üĞÂ
+
+    // ä»¥å›ºå®šé¢‘ç‡æ›´æ–°
     private void FixedUpdate()
     {
         try
         {
 
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             Debug.LogException(e);
         }
     }
 
-    //ÓÎÏ·ÍË³ö
-    //ÍË³öÓÎÏ·Ê±Ïú»Ù×ÊÔ´
+
+    // æ¸¸æˆé€€å‡º
+    // ä½œç”¨æ˜¯ï¼Œé€€å‡ºæ¸¸æˆæ—¶é”€æ¯èµ„æº
     private void OnApplicationQuit()
     {
         Debug.Log("Game Quit");
+
         try
         {
-
+            EntityManager.Instance.Exit();
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             Debug.LogException(e);
         }
     }
-
 }

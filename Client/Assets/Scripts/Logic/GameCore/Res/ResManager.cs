@@ -1,20 +1,20 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine;
 
-//×ÊÔ´¹ÜÀíÀà£¬µ¥ÀıÄ£Ê½ÊµÏÖ
+
+// èµ„æºç®¡ç†ç±»ï¼Œå•åˆ©æ¨¡å¼å®ç°
 public class ResManager : BaseMgr<ResManager>
 {
+
     private enum LoadState
     {
-        //¿ÕÏĞ×´Ì¬
+        // ç©ºé—²çŠ¶æ€
         Idle,
-        //¼ÓÔØ×´Ì¬
+        // åŠ è½½çŠ¶æ€
         LoadScene,
-        //½ø¶ÈÌõ
+        // 
         TickLoadSceneProgress,
     }
 
@@ -22,64 +22,73 @@ public class ResManager : BaseMgr<ResManager>
     private string mCurrentSceneName = null;
     private AsyncOperation mCurrentSceneAsyncOperation;
 
-
     public delegate void OnLoadCallBack();
     private OnLoadCallBack SceneLoadedCallback;
 
+
     public void Update()
     {
-        switch (mCurrentLoadState)
+        switch(mCurrentLoadState)
         {
             case LoadState.Idle:
                 break;
             case LoadState.LoadScene:
-                //Í¨¹ı»Øµ÷£¨Î¯ÍĞ£©µÄ·½Ê½¸æËßÎÒÃÇ£¬³¡¾°¼ÓÔØÍê³É
+                // é€šè¿‡å›è°ƒçš„æ–¹å¼å‘Šè¯‰æˆ‘ä»¬ï¼Œåœºæ™¯åŠ è½½å®Œæˆ
                 SceneManager.sceneLoaded += SceneManager_sceneLoaded;
 
-                //Í¨¹ıÒì²½µÄ·½Ê½¼ÓÔØ³¡¾°
+                // é€šè¿‡å¼‚æ­¥çš„æ–¹å¼åŠ è½½åœºæ™¯ 
                 mCurrentSceneAsyncOperation = SceneManager.LoadSceneAsync(mCurrentSceneName, LoadSceneMode.Single);
                 if (mCurrentSceneAsyncOperation == null)
                 {
-                    Debug.LogError("Faild t oload scene,mCurrentSceneAsyncOperation is null");
+                    Debug.LogError("Failed to load scene, mCurrentSceneAsyncOperation is null");
                     mCurrentLoadState = LoadState.Idle;
                     return;
                 }
                 mCurrentLoadState = LoadState.TickLoadSceneProgress;
                 break;
             case LoadState.TickLoadSceneProgress:
-                Debug.Log("Loading scene"+mCurrentSceneName+"progress"+mCurrentSceneAsyncOperation.progress);
+                Debug.Log("Loading scene " + mCurrentSceneName + " progress " + mCurrentSceneAsyncOperation.progress);
                 break;
+
         }
     }
 
 
-
-    //Òì²½¼ÓÔØ³¡¾°
-    public void LoadSceneAsync(string name,OnLoadCallBack callBack)
+    // å¼‚æ­¥åŠ è½½åœºæ™¯
+    public void LoadSceneAsync(string name, OnLoadCallBack callback)
     {
-        //µ±Ç°ÊÇ·ñÕıÔÚ¼ÓÔØ³¡¾°
+        // åˆ¤æ–­å½“å‰æ˜¯å¦æ­£åœ¨åŠ è½½åœºæ™¯
         if (mCurrentLoadState != LoadState.Idle)
         {
-            Debug.LogError("One scene is loading,scene name:"+name);
+            Debug.LogError("One scene is loading, scene name " + name);
             return;
         }
 
         mCurrentLoadState = LoadState.LoadScene;
         mCurrentSceneName = name;
-        SceneLoadedCallback = callBack;
+        SceneLoadedCallback = callback;
     }
 
+    //// 
     //public void LoadScene(string name)
     //{
-    //    //Í¬²½¼ÓÔØ³¡¾°
+    //    // åŒæ­¥åŠ è½½åœºæ™¯
     //    SceneManager.LoadScene(name);
+
+    //    LoadPlayer();
     //}
 
-    //unity »Øµ÷¸øÎÒÃÇµÄ¼ÓÔØÍê³É
-    public void SceneManager_sceneLoaded(Scene scene,LoadSceneMode loadSceneMode)
+    private void LoadPlayer()
+    {
+
+    }
+
+
+    // unity å›è°ƒç»™æˆ‘ä»¬çš„åŠ è½½å®Œæˆ
+    public void SceneManager_sceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
     {
         SceneManager.sceneLoaded -= SceneManager_sceneLoaded;
-        mCurrentLoadState= LoadState.Idle;
+        mCurrentLoadState = LoadState.Idle;
 
         if (SceneLoadedCallback != null)
         {
@@ -87,33 +96,37 @@ public class ResManager : BaseMgr<ResManager>
         }
     }
 
-    //¼ÓÔØ×ÊÔ´
-    public UnityEngine.Object LoadResource(string resPath)
+
+    // åŠ è½½èµ„æº
+    private Object LoadResource(string resPath)
     {
 #if UNITY_EDITOR
-        //Ö»ÄÜÔÚunityÖĞµÄeditorÏÂµÄ×ÊÔ´¼ÓÔØ·½Ê½
-        UnityEngine.Object obj =UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(resPath);
+        // åªèƒ½åœ¨unity çš„ editor ä¸‹çš„èµ„æºåŠ è½½æ–¹å¼,åªæ˜¯ä¸›ç£ç›˜åŠ è½½åˆ°å†…å­˜
+        Object obj = UnityEditor.AssetDatabase.LoadAssetAtPath<Object>(resPath);
         return obj;
 #else
-        //ÆäËû¼ÓÔØ·½Ê½
+        //
+        å…¶å®ƒçš„åŠ è½½æ–¹å¼
 #endif
     }
 
-    //ÊµÀı»¯ÏÔÊ¾Ò»¸ö×ÊÔ´
+
+    // å®ä¾‹åŒ–æ˜¾ç¤ºä¸€ä¸ªèµ„æº
     public GameObject InstantiateGameObject(string resPath)
     {
-        GameObject obj=LoadResource(resPath) as GameObject;
-        if (obj!=null)
+        GameObject obj = LoadResource(resPath) as GameObject;
+        if (obj != null)
         {
-            //ÊµÀı»¯×ÊÔ´
-            GameObject go=GameObject.Instantiate(obj);
-            if (go==null)
+            // å®ä¾‹åŒ–èµ„æºã€€
+            GameObject go = GameObject.Instantiate(obj);
+            if (go == null)
             {
-                Debug.LogError("game instantiate failed"+resPath);
+                Debug.LogError("game instantiate failed "+resPath);
                 return null;
             }
 
-            //ÏÔÊ¾×ÊÔ´
+
+            // æ˜¾ç¤ºèµ„æº
             go.SetActive(true);
             return go;
         }

@@ -4,48 +4,57 @@ using UnityEngine;
 
 public class WorldManager : BaseMgr<WorldManager>
 {
-    //³¡¾°×´Ì¬»ú
+    // åœºæ™¯çŠ¶æ€æœº
     enum LoadState
     {
-        //³õÊ¼»¯×´Ì¬
+        // åˆå§‹åŒ–çŠ¶æ€
         Init,
-        //¼ÓÔØ³¡¾°×´Ì¬
+        // åŠ è½½åœºæ™¯çŠ¶æ€
         LoadScene,
-        //¸üĞÂ×´Ì¬
+        // æ›´æ–°çŠ¶æ€
         Update,
-        //µÈ´ı×´Ì¬
+        // ç­‰å¾…çŠ¶æ€
         Wait,
     }
-    private LoadState mstate;
+    private LoadState mState;
     private string mLoadSceneName;
 
 
-    //³õÊ¼»¯
+    private long mObjectID;
+
+    // åˆå§‹åŒ–
     public void Init()
     {
+        mObjectID = 0;
         EnterState(LoadState.Init);
     }
 
-    //ÊÀ½ç¸üĞÂ
+
+    // ä¸–ç•Œæ›´æ–°
     public void Update()
     {
-        if (mstate == LoadState.Init)
+        if (mState == LoadState.Init)
         {
 
         }
-        if(mstate ==LoadState.LoadScene)
+
+        if (mState == LoadState.LoadScene)
         {
             EnterState(LoadState.Wait);
-            //rpgpp_lt_scene_1.0
-            ResManager.Instance.LoadSceneAsync(mLoadSceneName,() =>
+            // "rpgpp_lt_scene_1.0"
+            ResManager.Instance.LoadSceneAsync(mLoadSceneName, () =>
             {
-                //µÈ´ı³¡¾°¼ÓÔØÍê³Éºó£¬¼ÓÔØÍæ¼Òµ½³¡¾°ÖĞ
+                // ç­‰å¾…åœºæ™¯åŠ è½½å®Œæˆåï¼ŒåŠ è½½ç©å®¶åˆ°åœºæ™¯ä¸­
                 LoadMainPlayer();
+
+                LoadNpc();
             });
+            //ResManager.Instance.LoadScene(mLoadSceneName);
         }
     }
 
-    //ÊÀ½ç¹ÜÀíÖĞµÄ¼ÓÔØ³¡¾°
+
+    // ä¸–ç•Œç®¡ç†ä¸­çš„åŠ è½½åœºæ™¯
     public void LoadScene(string name)
     {
         mLoadSceneName = name;
@@ -53,19 +62,38 @@ public class WorldManager : BaseMgr<WorldManager>
         EnterState(LoadState.LoadScene);
     }
 
-    //¸Ä±äµ±Ç°µÄ×´Ì¬»ú
+
+    // æ”¹å˜å½“å‰çš„çŠ¶æ€æœº
     private void EnterState(LoadState state)
     {
-        mstate = state;
+        mState = state;
     }
 
     private void LoadMainPlayer()
     {
-        GameObject mainPlayer=ResManager.Instance.InstantiateGameObject("Assets/Res/Role/Peasant Nolant Blue(Free Version).prefab");
-
-        mainPlayer.transform.position = new Vector3(63.0f,22.25f,43.0f);
+        Vector3 mainPlayerPos = new Vector3(63.0f, 22.23f, 43.0f);
+        EntityMainPlayer mainPlayer = (EntityMainPlayer)EntityManager.Instance.CreateEntity(eEntityType.PLAYER_MAIN, GeneraterObjectID(), mainPlayerPos);
+        //mainPlayer.PlayAnimator("metarig|Idle");
+        //mainPlayer.PlayAnimator("metarig|Walk");
+        mainPlayer.PlayerAnimation("WK_heavy_infantry_05_combat_idle");
     }
 
-}
-    
 
+    // åŠ è½½åœºæ™¯ä¸­çš„npc
+    private void LoadNpc()
+    {
+        Vector3 npcPostion = new Vector3(56.53f, 22.24f, 43.8f);
+        EntityNpc npc = (EntityNpc)EntityManager.Instance.CreateEntity(eEntityType.NPC, GeneraterObjectID(), npcPostion);
+        npc.PlayAnimator("metarig|Idle");
+        npc.SetForward(new Vector3(90, 0, 0));
+        npc.SetName("ç¥ç§˜å•†äºº");
+    }
+
+
+    // ç”Ÿæˆç‰©ä½“çš„id
+    private long GeneraterObjectID()
+    {
+        mObjectID++;
+        return mObjectID;
+    }
+}
